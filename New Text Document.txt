@@ -1,0 +1,49 @@
+DECLARE
+
+	current_time timestamp without time zone;
+	age1 interval;
+	uid1 varchar;
+	movied varchar;
+	dob1 date;
+	pdate date;
+	pk varchar;
+	certificate varchar;
+
+Begin
+
+	uid1 = NEW.uid;
+	movied = NEW.movieid;
+	SELECT LOCALTIMESTAMP into current_time;
+	select packagestartdate into pdate from netflix.users where uid = uid1;
+	select packagename into pk from netflix.users where uid = uid1;
+	select dob into dob1 from netflix.users where uid = uid1;
+	select certification into certificate from netflix.movie where movieid = movied;
+	
+	if(pk = 'G01' OR pk = 'P01' OR pk = 'S01' AND (current_time - pdate) > (interval '1 month 0 days')) THEN
+			return NULL;
+			
+	elsif(pk = 'G02' OR pk = 'P02' OR pk = 'S02' AND (current_time - pdate) > (interval '3 months 0 days')) THEN
+			return NULL;
+			
+	elsif(pk = 'G03' OR pk = 'P03' OR pk = 'S03' AND (current_time - pdate) > (interval '12 months 0 days')) THEN
+			return NULL;
+			
+	end if;
+	
+	if(certificate = 'A' AND (current_time - dob1) < (interval '18 years 0 month 0 days')) THEN
+			return NULL;
+			
+	elsif(Exists(select * from watchedmovie where uid = uid1 AND movieid = movied))
+			INSERT INTO netflix.timestamps
+			VALUES (NEW.uid, NEW.movieid, current_time);
+
+			return NULL;
+			
+	else
+			INSERT INTO netflix.timestamps
+			VALUES (NEW.uid, NEW.movieid, current_time);
+
+			return NEW;
+	end if;
+			
+END
